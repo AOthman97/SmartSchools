@@ -1,7 +1,34 @@
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using System.Globalization;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// The path that would contain the vocabulary data
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Add the localization for the app
+builder.Services.AddMvc()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+
+// Define which languages to support
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var SupportedCultures = new[]
+    {
+          new CultureInfo("en"),
+          new CultureInfo("ar")
+     };
+
+    options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
+    options.SupportedCultures = SupportedCultures;
+    options.SupportedUICultures = SupportedCultures;
+});
 
 var app = builder.Build();
 
@@ -17,6 +44,16 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+var options = ((IApplicationBuilder)app).ApplicationServices.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+
+app.UseRequestLocalization(options.Value);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(@"D:\Repos\MoviesStore\wwwroot", "Images")),
+    RequestPath = "/Images"
+});
 
 app.UseAuthorization();
 

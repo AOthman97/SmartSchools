@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor;
+﻿using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 namespace SmartSchools
 {
@@ -25,7 +28,15 @@ namespace SmartSchools
             // Define which languages to support
             services.Configure<RequestLocalizationOptions>(options =>
             {
+                var SupportedCultures = new[]
+                {
+                    new CultureInfo("en"),
+                    new CultureInfo("ar")
+                };
 
+                options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
+                options.SupportedCultures = SupportedCultures;
+                options.SupportedUICultures = SupportedCultures;
             });
 
             services.AddControllersWithViews();
@@ -46,11 +57,10 @@ namespace SmartSchools
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(@"D:\Repos\MoviesStore\wwwroot", "Images")),
-                RequestPath = "/Images"
-            });
+            app.UseRouting();
+
+            var LocalizationInfo = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(LocalizationInfo.Value);
 
             app.UseAuthorization();
 
