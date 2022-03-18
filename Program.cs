@@ -1,13 +1,16 @@
+using DataAccess_lib.Internal.DataAccess;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using SmartSchool.BLL.Repo;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession();
 
 // The path that would contain the vocabulary data
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -15,6 +18,13 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 // Add the localization for the app
 builder.Services.AddMvc()
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+
+builder.Services.AddScoped<ISqlDataAccess, SqlDataAccess>();
+builder.Services.AddScoped<ILessonRepo, LessonRepo>();
+builder.Services.AddScoped<ISubjectsRepo, SubjectsRepo>();
+builder.Services.AddScoped<IClassesRepo, ClassesRepo>();
+builder.Services.AddScoped<IUsersRepo, UsersRepo>();
+
 
 // Define which languages to support
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -44,6 +54,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 var options = ((IApplicationBuilder)app).ApplicationServices.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 

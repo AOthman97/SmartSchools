@@ -24,6 +24,7 @@ namespace SmartSchools
             // Add the localization for the app
             services.AddMvc()
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+            services.AddSession();
 
             // Define which languages to support
             services.Configure<RequestLocalizationOptions>(options =>
@@ -58,7 +59,7 @@ namespace SmartSchools
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             var LocalizationInfo = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(LocalizationInfo.Value);
 
